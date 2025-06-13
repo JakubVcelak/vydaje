@@ -5,6 +5,7 @@ import { z } from 'zod';
 import type { User } from '@/app/lib/definitions';
 import bcrypt from 'bcrypt';
 import postgres from 'postgres';
+import { NextRequest, NextResponse } from 'next/server';
  
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
  
@@ -42,3 +43,24 @@ export const { auth, signIn, signOut } = NextAuth({
     }),
   ],
 });
+ 
+/**
+ * Middleware-like helper to restrict access to authenticated users.
+ * Use in server components, API routes, or route handlers.
+ */
+export async function requireAuth(req: NextRequest) {
+  const session = await auth();
+  const publicPaths = ['/', '/login'];
+  const { pathname } = req.nextUrl;
+ 
+  if (publicPaths.includes(pathname)) {
+    return NextResponse.next();
+  }
+ 
+  if (!session?.user) {
+    // Redirect to login if not authenticated
+    return NextResponse.redirect(new URL('/login', req.url));
+  }
+ 
+  return NextResponse.next();
+}
