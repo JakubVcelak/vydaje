@@ -12,8 +12,8 @@ export const authConfig = {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
       } else if (isLoggedIn) {
-        // Always redirect to absolute dashboard URL on current origin
-        return Response.redirect(`${nextUrl.origin}/dashboard`);
+        // Redirect to /dashboard as a relative path
+        return Response.redirect('/dashboard');
       }
       return true;
     },
